@@ -14,24 +14,36 @@ using System.Collections.Generic;
 
 namespace Simulator.Sensors
 {
-    [SensorType("Lane Following", new System.Type[] { })]
+    [SensorType("Lane Following", new System.Type[] { typeof(LaneFollowingData) })]
     public class LaneFollowingSensor : SensorBase, IVehicleInputs
     {
-        private float ADSteerInput = 0f;
-        private double LastControlUpdate = 0f;
-
         public float SteerInput { get; private set; } = 0f;
         public float AccelInput { get; private set; } = 0f;
         public float BrakeInput { get; private set; } = 0f;
 
+        [SensorParameter]
+        public string ControlCommandTopic = "/simulator/control/command";
+
+        private IBridge Bridge;
+        private IWriter<LaneFollowingData> Writer;
+        private IVehicleDynamics Dynamics;
+
+        private float ADSteerInput = 0f;
+        private double LastControlUpdate = 0f;
+        private uint seq = 0;
+
         private void Awake()
         {
+            Dynamics = GetComponentInParent<IVehicleDynamics>();
             LastControlUpdate = SimulatorManager.Instance.CurrentTime;
         }
 
         public override void OnBridgeSetup(IBridge bridge)
         {
-            bridge.AddReader<TwistStamped>(Topic, data =>
+            seq = 0;
+            Bridge = bridge;
+            Writer = Bridge.AddWriter<LaneFollowingData>(ControlCommandTopic);
+            Bridge.AddReader<TwistStamped>(Topic, data =>
             {
                 LastControlUpdate = SimulatorManager.Instance.CurrentTime;
                 ADSteerInput = (float)data.twist.angular.x;
@@ -40,17 +52,32 @@ namespace Simulator.Sensors
 
         public void Update()
         {
-            if (SimulatorManager.Instance.CurrentTime - LastControlUpdate >= 0.5)
+            if (Bridge != null && Bridge.Status == Status.Connected)
             {
-                ADSteerInput = SteerInput = 0f;
+                if (SimulatorManager.Instance.CurrentTime - LastControlUpdate >= 0.5)
+                {
+                    ADSteerInput = SteerInput = 0f;
+                }
             }
         }
 
         private void FixedUpdate()
         {
-            if (SimulatorManager.Instance.CurrentTime - LastControlUpdate < 0.5f)
+            if (Bridge != null && Bridge.Status == Status.Connected)
             {
-                SteerInput = ADSteerInput;
+                if (SimulatorManager.Instance.CurrentTime - LastControlUpdate < 0.5f)
+                {
+                    SteerInput = ADSteerInput;
+                }
+
+                Writer.Write(new LaneFollowingData()
+                {
+                    Name = Name,
+                    Frame = Frame,
+                    Time = SimulatorManager.Instance.CurrentTime,
+                    Sequence = seq++,
+                    SteerInput = Dynamics.SteerInput,
+                });
             }
         }
 
