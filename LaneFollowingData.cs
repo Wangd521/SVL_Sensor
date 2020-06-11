@@ -5,61 +5,11 @@
  *
  */
 
-using System;
 using Simulator.Bridge;
-using Simulator.Bridge.Ros;
+using Simulator.Bridge.Ros.Ros;
 
 namespace Simulator.Sensors
 {
-    public class LaneFollowingDataConverters : IDataConverter<LaneFollowingData>
-    {
-        public Func<LaneFollowingData, object> GetConverter(IBridge bridge)
-        {
-            if (bridge.GetType() == typeof(Bridge.Ros.Bridge))
-            {
-                return (data) =>
-                {
-                    return new TwistStamped()
-                    {
-                        header = new Header()
-                        {
-                            stamp = Conversions.ConvertTime(data.Time),
-                            seq = data.Sequence,
-                            frame_id = data.Frame,
-                        },
-                        twist = new Twist()
-                        {
-                            linear = new Simulator.Bridge.Ros.Vector3()
-                            {
-                                x = 0.0,
-                                y = 0.0,
-                                z = 0.0,
-                            },
-                            angular = new Simulator.Bridge.Ros.Vector3()
-                            {
-                                x = data.SteerInput.GetValueOrDefault(),
-                                y = 0.0,
-                                z = 0.0,
-                            }
-                        }
-                    };
-                };
-            }
-
-            throw new System.Exception("LaneFollowingSensor not implemented for this bridge type!");
-        }
-
-        public Type GetOutputType(IBridge bridge)
-        {
-            if (bridge.GetType() == typeof(Bridge.Ros.Bridge))
-            {
-                return typeof(TwistStamped);
-            }
-
-            throw new System.Exception("LaneFollowingSensor not implemented for this bridge type!");
-        }
-    }
-
     public class LaneFollowingData
     {
         public string Name;
@@ -69,17 +19,40 @@ namespace Simulator.Sensors
         public float? SteerInput;
     }
 
-    static class Conversions
+    public class LaneFollowingDataBridgePlugin : ISensorBridgePlugin
     {
-        public static Simulator.Bridge.Ros.Time ConvertTime(double unixEpochSeconds)
+        public void Register(IBridgePlugin plugin)
         {
-            long nanosec = (long)(unixEpochSeconds * 1e9);
-
-            return new Simulator.Bridge.Ros.Time()
+            if (plugin.Factory is Bridge.Ros.RosBridgeFactoryBase)
             {
-                secs = nanosec / 1000000000,
-                nsecs = (uint)(nanosec % 1000000000),
-            };
+                plugin.Factory.RegPublisher(plugin,
+                    (LaneFollowingData data) =>
+                        new TwistStamped()
+                        {
+                            header = new Header()
+                            {
+                                stamp = Bridge.Ros.Conversions.ConvertTime(data.Time),
+                                seq = data.Sequence,
+                                frame_id = data.Frame,
+                            },
+                            twist = new Twist()
+                            {
+                                linear = new Vector3()
+                                {
+                                    x = 0.0,
+                                    y = 0.0,
+                                    z = 0.0,
+                                },
+                                angular = new Vector3()
+                                {
+                                    x = data.SteerInput.GetValueOrDefault(),
+                                    y = 0.0,
+                                    z = 0.0,
+                                }
+                            }
+                        }
+                );
+            }
         }
     }
 }

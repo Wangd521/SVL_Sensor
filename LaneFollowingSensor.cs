@@ -9,12 +9,12 @@ using UnityEngine;
 using Simulator.Bridge;
 using Simulator.Utilities;
 using Simulator.Sensors.UI;
-using Simulator.Bridge.Ros;
 using System.Collections.Generic;
+using Simulator.Bridge.Data;
 
 namespace Simulator.Sensors
 {
-    [SensorType("Lane Following", new System.Type[] { typeof(LaneFollowingData) })]
+    [SensorType("Lane Following", new System.Type[] { typeof(LaneFollowingData), typeof(VehicleControlData) })]
     public class LaneFollowingSensor : SensorBase, IVehicleInputs
     {
         public float SteerInput { get; private set; } = 0f;
@@ -24,8 +24,8 @@ namespace Simulator.Sensors
         [SensorParameter]
         public string ControlCommandTopic = "/simulator/control/command";
 
-        private IBridge Bridge;
-        private IWriter<LaneFollowingData> Writer;
+        private BridgeInstance Bridge;
+        private Publisher<LaneFollowingData> Publish;
         private IVehicleDynamics Dynamics;
 
         private float ADSteerInput = 0f;
@@ -38,15 +38,15 @@ namespace Simulator.Sensors
             LastControlUpdate = SimulatorManager.Instance.CurrentTime;
         }
 
-        public override void OnBridgeSetup(IBridge bridge)
+        public override void OnBridgeSetup(BridgeInstance bridge)
         {
             seq = 0;
             Bridge = bridge;
-            Writer = Bridge.AddWriter<LaneFollowingData>(ControlCommandTopic);
-            Bridge.AddReader<TwistStamped>(Topic, data =>
+            Publish = Bridge.AddPublisher<LaneFollowingData>(ControlCommandTopic);
+            Bridge.AddSubscriber<VehicleControlData>(Topic, data =>
             {
                 LastControlUpdate = SimulatorManager.Instance.CurrentTime;
-                ADSteerInput = (float)data.twist.angular.x;
+                ADSteerInput = data.SteerInput.Value;
             });
         }
 
@@ -70,7 +70,7 @@ namespace Simulator.Sensors
                     SteerInput = ADSteerInput;
                 }
 
-                Writer.Write(new LaneFollowingData()
+                Publish(new LaneFollowingData()
                 {
                     Name = Name,
                     Frame = Frame,
