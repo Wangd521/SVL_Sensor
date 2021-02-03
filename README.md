@@ -1,6 +1,6 @@
-# LaneFollowing Sensor
+# Lane Following Sensor
 
-This repository contains the code and assets for a custom Sensor Plugin - LaneFollowing Sensor.
+This repository contains the code and assets for a custom Sensor Plugin - Lane Following Sensor.
 
 To use this Sensor Plugin:
 
@@ -12,13 +12,11 @@ To use this Sensor Plugin:
 
 4) add json configuration (see below) to vehicle of your choosing and launch simulation
 
-LaneFollowing Sensor will subscribe to predicted steering commands from the model and publish EGO vehicle commands for data collection for training
+Lane Following Sensor will subscribe to predicted steering commands from the model and publish EGO vehicle commands for data collection for training
 
 # Parameters
 
 Topic: A topic name to subscribe for predicted steering commands
-
-ControlCommandTopic: A topic name to publish EGO vehicle commands for training
 
 Example sensor config JSON:
 
@@ -28,7 +26,6 @@ Example sensor config JSON:
     "name": "Lane Following Sensor",
     "params": {
         "Topic": "/lanefollowing/steering_cmd",
-        "ControlCommandTopic": "/simulator/control/command"
     }
 }
 ```
