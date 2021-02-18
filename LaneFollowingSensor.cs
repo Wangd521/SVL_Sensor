@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020 LG Electronics, Inc.
+ * Copyright (c) 2020-2021 LG Electronics, Inc.
  *
  * This software contains code licensed as described in LICENSE.
  *
@@ -26,16 +26,16 @@ namespace Simulator.Sensors
         public float SteeringSensitivity = 1f;
 
         [AnalysisMeasurement(MeasurementType.Velocity)]
-        private float MaxSpeed = 0f;
+        public float MaxSpeed = 0f;
 
         [AnalysisMeasurement(MeasurementType.Count)]
-        private int ControlMessages = 0;
+        public int ControlMessages = 0;
 
         [AnalysisMeasurement(MeasurementType.Input)]
-        private float LargestSteerInput = 0f;
+        public float LargestSteerInput = 0f;
 
         [AnalysisMeasurement(MeasurementType.Duration)]
-        private double AverageInferecneTime = 0f;
+        public double AverageInferecneTime = 0f;
 
         private IVehicleDynamics Dynamics;
         private VehicleController Controller;
