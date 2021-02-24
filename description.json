@@ -1,6 +1,6 @@
 {
   "name": "Lane Following Sensor",
-  "accessType": "public",
+  "accessType": "private",
   "description": "LaneFollowing Sensor will subscribe to predicted steering commands from the model inference.",
   "licenseName": "LG Content",
   "copyright": "LG Electronics Inc.",
