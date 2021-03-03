@@ -35,7 +35,7 @@ namespace Simulator.Sensors
         public float LargestSteerInput = 0f;
 
         [AnalysisMeasurement(MeasurementType.Duration)]
-        public double AverageInferecneTime = 0f;
+        public double AverageInferenceTime = 0f;
 
         private IVehicleDynamics Dynamics;
         private VehicleController Controller;
@@ -70,7 +70,7 @@ namespace Simulator.Sensors
 
                 ControlMessages++;
                 TotalInferenceTime += InferenceTime;
-                AverageInferecneTime = TotalInferenceTime / (float)ControlMessages;
+                AverageInferenceTime = TotalInferenceTime / (float)ControlMessages;
             });
         }
 
@@ -118,7 +118,7 @@ namespace Simulator.Sensors
                 {"Steering Sensitivity", SteeringSensitivity},
                 {"Number of Control Messages", ControlMessages},
                 {"Inference Time", InferenceTime},
-                {"Average Inference Time", AverageInferecneTime},
+                {"Average Inference Time", AverageInferenceTime},
                 {"Last Control Update", LastControlUpdate},
             };
 
