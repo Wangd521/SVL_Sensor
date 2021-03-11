@@ -64,6 +64,9 @@ namespace Simulator.Sensors
             Bridge = bridge;
             Bridge.AddSubscriber<VehicleControlData>(Topic, data =>
             {
+                if (Time.timeScale == 0f)
+                    return;
+
                 LastControlUpdate = SimulatorManager.Instance.CurrentTime;
                 ADSteerInput = data.SteerInput.GetValueOrDefault();
                 InferenceTime = data.TimeStampSec.GetValueOrDefault();
