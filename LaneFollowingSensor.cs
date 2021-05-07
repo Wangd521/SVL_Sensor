@@ -38,7 +38,7 @@ namespace Simulator.Sensors
         public double AverageInferenceTime = 0f;
 
         private IVehicleDynamics Dynamics;
-        private VehicleController Controller;
+        private IAgentController Controller;
 
         public float SteerInput { get; private set; } = 0f;
         public float AccelInput { get; private set; } = 0f;
@@ -56,7 +56,7 @@ namespace Simulator.Sensors
         {
             LastControlUpdate = SimulatorManager.Instance.CurrentTime;
             Dynamics = GetComponentInParent<IVehicleDynamics>();
-            Controller = GetComponentInParent<VehicleController>();
+            Controller = GetComponentInParent<IAgentController>();
         }
 
         public override void OnBridgeSetup(BridgeInstance bridge)
@@ -103,10 +103,10 @@ namespace Simulator.Sensors
 
             if (Controller.AccelInput >= 0)
             {
-                AccelInput = Dynamics.RB.velocity.magnitude < CruiseSpeed ? 1f : 0f;
+                AccelInput = Dynamics.Velocity.magnitude < CruiseSpeed ? 1f : 0f;
             }
 
-            MaxSpeed = Mathf.Max(MaxSpeed, Dynamics.RB.velocity.magnitude);
+            MaxSpeed = Mathf.Max(MaxSpeed, Dynamics.Velocity.magnitude);
         }
 
         public override void OnVisualize(Visualizer visualizer)
@@ -115,7 +115,7 @@ namespace Simulator.Sensors
             var graphData = new Dictionary<string, object>()
             {
                 {"Cruise Speed", CruiseSpeed},
-                {"Speed", Dynamics.RB.velocity.magnitude},
+                {"Speed", Dynamics.Velocity.magnitude},
                 {"AD Steer Input", ADSteerInput},
                 {"Largest AD Steer Input", LargestSteerInput},
                 {"Steering Sensitivity", SteeringSensitivity},
