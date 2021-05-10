@@ -59,6 +59,16 @@ namespace Simulator.Sensors
             Controller = GetComponentInParent<IAgentController>();
         }
 
+        protected override void Initialize()
+        {
+            
+        }
+
+        protected override void Deinitialize()
+        {
+            
+        }
+
         public override void OnBridgeSetup(BridgeInstance bridge)
         {
             Bridge = bridge;
